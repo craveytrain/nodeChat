@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+	<title>node chat test</title>
+	<link rel="stylesheet" href="style.css" media="all" />
+</head>
+<body>
+	<form id="loginFrm">
+		<label for="name">Name</label>
+		<input id="name" type="text" />
+		<button id="login">Connect</button>
+	</form>
+	
+	<form id="chatFrm">
+		<div id="chatlog"></div>
+		<input id="msg" type="text" />
+		<button id="send">Send</button>
+	</form>
+		
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+	<script>
+		var name,
+				conn,
+				$chatlog,
+				elMsg,
+				$chatFrm,
+				$loginFrm;
+
+		function scrollToBottom () {
+			window.scrollBy(0, document.body.scrollHeight - document.body.scrollTop);
+		}
+
+		function log (data) {
+			var aMsg = data.split('\t'),
+					ts = '<i class="ts">' + aMsg[0] + '</i> ' ,
+					name = '<b class="name">' + aMsg[1] + '</b> ',
+					msg = aMsg[2],
+					type = (aMsg[3]) ? ' class="' + aMsg[3] + '"' : '';
+			
+			$chatlog.append('<p' + type + '>' + ts + name + msg + '</p>');
+			scrollToBottom();
+		}
+
+		function send (msg) {
+			if (conn && conn.readyState === 1) {
+				msg = msg || elMsg.value;
+				conn.send(name + '\t' + msg);
+				elMsg.value = '';
+			}
+		}
+
+		$(document).ready(function () {
+			$chatFrm = $('#chatFrm');
+			$loginFrm = $('#loginFrm');
+			$chatlog = $('#chatlog');
+			elMsg = document.getElementById('msg');
+					
+			$chatFrm.hide();
+			
+			$loginFrm.bind('submit', function (e) {
+					e.preventDefault();
+					name = document.getElementById('name').value;
+					
+				  if (window['WebSocket']) {
+				    conn = new WebSocket('ws://localhost:8000/');
+
+				    conn.onmessage = function (e) {
+				      log(e.data);
+				    };
+
+				    conn.onclose = function() {
+							$chatFrm.hide();
+							$loginFrm.show();
+				      send(' has disconnected\tsys');
+				    };
+
+				    conn.onopen = function () {
+							$chatFrm.show();
+							$loginFrm.hide();
+				      send(' has connected\tsys');
+				    }
+				  }
+				});
+				
+				$('#msg').bind('keydown', function (e) {
+					if(e.which == 13){
+						e.preventDefault();
+						send();
+					}
+				});
+			  
+				$('#send').bind('click', function (e) {
+					e.preventDefault();
+					send();
+				});
+			
+		});
+	</script>
+</body>
+</html>
