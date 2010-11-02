@@ -2,7 +2,7 @@ var sys = require('sys'),
 		fs = require('fs'),
 		path = require('path'),
 		http = require('http'),
-		ws = require('ws');		
+		ws = require('websocket-server');		
 
 // logging:
 function pad (n) {

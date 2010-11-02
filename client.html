@@ -62,7 +62,7 @@
 					name = document.getElementById('name').value;
 					
 				  if (window['WebSocket']) {
-				    conn = new WebSocket('ws://localhost:8000/');
+				    conn = new WebSocket('ws://craveytrain.no.de:8000/');
 
 				    conn.onmessage = function (e) {
 				      log(e.data);
