@@ -18,6 +18,8 @@ function log (msg) {
   sys.puts(timestamp() + ' - ' + msg.toString());
 };
 
+var connections = 0;
+
 var port = 8000;
 
 var server = ws.createServer({
@@ -25,21 +27,25 @@ var server = ws.createServer({
 });
 
 server.addListener('listening', function (){
-	log('Listening for connections @ http://localhost:' + port);
+	// log('Listening for connections @ http://localhost:' + port);
 });
 
 // Handle WebSocket Requests
 server.addListener('connection', function (conn) {
-	log('opened connection: ' + conn.id);
+	connections++;
+	server.broadcast('sys\t' + connections);
+	// log('opened connection: ' + conn.id);
   
 	conn.addListener('message', function (message) {
-		log('<'+conn.id+'> ' + message);
+		// log('<'+conn.id+'> ' + message);
 		server.broadcast(timestamp() + '\t' + message);
 	});
 });
 
 server.addListener('close', function(conn){
-	log('closed connection: ' + conn.id);
+	connections--;
+	server.broadcast('sys\t' + connections);
+	// log('closed connection: ' + conn.id);
 });
 
 server.listen(port);

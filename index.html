@@ -5,39 +5,38 @@
 	<link rel="stylesheet" href="style.css" media="all" />
 </head>
 <body>
-	<form id="loginFrm">
-		<label for="name">Name</label>
-		<input id="name" type="text" />
-		<button id="login">Connect</button>
-	</form>
-	
+	<p id="users"><b></b> Connected Users</p>
+	<div id="chatlog"></div>
 	<form id="chatFrm">
-		<div id="chatlog"></div>
 		<input id="msg" type="text" />
 		<button id="send">Send</button>
 	</form>
 		
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
 	<script>
-		var name,
+		var name = 'User' + Math.floor(Math.random() * 1000),
 				conn,
 				$chatlog,
 				elMsg,
 				$chatFrm,
-				$loginFrm;
+				$userCount;
 
 		function scrollToBottom () {
 			window.scrollBy(0, document.body.scrollHeight - document.body.scrollTop);
 		}
 
 		function log (data) {
-			var aMsg = data.split('\t'),
-					ts = '<i class="ts">' + aMsg[0] + '</i> ' ,
-					name = '<b class="name">' + aMsg[1] + '</b> ',
-					msg = aMsg[2],
-					type = (aMsg[3]) ? ' class="' + aMsg[3] + '"' : '';
+			var aMsg = data.split('\t');
+			if (aMsg[0] === 'sys') {
+				$userCount.text(aMsg[1]);
+				$chatlog.append('<p' + type + '>' + ts + name + msg + '</p>');
+			} else {
+				var ts = '<i class="ts">' + aMsg[0] + '</i> ' ,
+						name = '<b class="name">' + aMsg[1] + '</b> ',
+						msg = aMsg[2];
 			
-			$chatlog.append('<p' + type + '>' + ts + name + msg + '</p>');
+				$chatlog.append('<p>' + ts + name + msg + '</p>');
+			}
 			scrollToBottom();
 		}
 
@@ -51,48 +50,39 @@
 
 		$(document).ready(function () {
 			$chatFrm = $('#chatFrm');
-			$loginFrm = $('#loginFrm');
 			$chatlog = $('#chatlog');
+			$userCount = $('#users b');
 			elMsg = document.getElementById('msg');
 					
-			$chatFrm.hide();
 			
-			$loginFrm.bind('submit', function (e) {
-					e.preventDefault();
-					name = document.getElementById('name').value;
 					
-				  if (window['WebSocket']) {
-				    conn = new WebSocket('ws://craveytrain.no.de:8000/');
+			if (window['WebSocket']) {
+			  conn = new WebSocket('ws://craveytrain.no.de:8000/');
 
-				    conn.onmessage = function (e) {
-				      log(e.data);
-				    };
+			  conn.onmessage = function (e) {
+			    log(e.data);
+			  };
 
-				    conn.onclose = function() {
-							$chatFrm.hide();
-							$loginFrm.show();
-				      send(' has disconnected\tsys');
-				    };
+			  conn.onclose = function() {
+				// Do something on disconnect
+			  };
 
-				    conn.onopen = function () {
-							$chatFrm.show();
-							$loginFrm.hide();
-				      send(' has connected\tsys');
-				    }
-				  }
-				});
+			  conn.onopen = function () {
+				// Do something on connect
+			  }
+			}
 				
-				$('#msg').bind('keydown', function (e) {
-					if(e.which == 13){
-						e.preventDefault();
-						send();
-					}
-				});
-			  
-				$('#send').bind('click', function (e) {
+			$('#msg').bind('keydown', function (e) {
+				if(e.which == 13){
 					e.preventDefault();
 					send();
-				});
+				}
+			});
+		  
+			$('#send').bind('click', function (e) {
+				e.preventDefault();
+				send();
+			});
 			
 		});
 	</script>
