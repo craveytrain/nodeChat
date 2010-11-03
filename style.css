@@ -1,0 +1,38 @@
+body {
+	margin: 0;
+}
+
+#status {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	padding: 5px 10px;
+	border-bottom: 1px solid #ccc;
+	font-family: sans-serif;
+	font-size: 10px;
+	text-transform: uppercase;
+	background: #eee;
+}
+
+#status p {
+	margin: 0;
+}
+
+#chatlog {
+	margin: 23px 0 34px 0;
+	padding: 10px;
+}
+
+#chatFrm {
+	position: fixed;
+	width: 100%;
+	bottom: 0;
+	padding: 5px 10px;
+	border-top: 1px solid #ccc;
+	background: #eee;
+}
+
+input {
+	width: 70%;
+	margin-right: 1em;
+}

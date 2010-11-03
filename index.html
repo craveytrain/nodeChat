@@ -5,7 +5,9 @@
 	<link rel="stylesheet" href="style.css" media="all" />
 </head>
 <body>
-	<p id="users"><b></b> Connected Users</p>
+	<div id="status">
+		<p id="users"><b></b> Connected Users</p>
+	</div>
 	<div id="chatlog"></div>
 	<form id="chatFrm">
 		<input id="msg" type="text" />
@@ -15,6 +17,7 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
 	<script>
 		var name = 'User' + Math.floor(Math.random() * 1000),
+				ctrlChar = '/',
 				conn,
 				$chatlog,
 				elMsg,
@@ -26,12 +29,16 @@
 		}
 
 		function log (data) {
-			var aMsg = data.split('\t');
-			if (aMsg[0] === 'sys') {
-				$userCount.text(aMsg[1]);
-				$chatlog.append('<p' + type + '>' + ts + name + msg + '</p>');
+			if(data[0] == "/") {
+				data = data.substring(1).split('\t');
+				switch (data[0]) {
+					case 'connCount':
+						$userCount.text(data[1]);
+						break;
+				}
 			} else {
-				var ts = '<i class="ts">' + aMsg[0] + '</i> ' ,
+				var aMsg = data.split('\t'),
+						ts = '<i class="ts">' + aMsg[0] + '</i> ' ,
 						name = '<b class="name">' + aMsg[1] + '</b> ',
 						msg = aMsg[2];
 			
@@ -43,7 +50,7 @@
 		function send (msg) {
 			if (conn && conn.readyState === 1) {
 				msg = msg || elMsg.value;
-				conn.send(name + '\t' + msg);
+				conn.send(msg);
 				elMsg.value = '';
 			}
 		}
@@ -57,7 +64,7 @@
 			
 					
 			if (window['WebSocket']) {
-			  conn = new WebSocket('ws://craveytrain.no.de:8000/');
+			  conn = new WebSocket('ws://crveytrain.no.de:8000/');
 
 			  conn.onmessage = function (e) {
 			    log(e.data);
@@ -68,7 +75,7 @@
 			  };
 
 			  conn.onopen = function () {
-				// Do something on connect
+					conn.send(ctrlChar + 'name\t' + name);
 			  }
 			}
 				
