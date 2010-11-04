@@ -24,16 +24,16 @@ var connections = 0,
 var port = 8000;
 
 var server = ws.createServer();
+var client = http.createClient(7999, host='localhost');
 
-server.addListener('listening', function (){
-	// log('Listening for connections @ http://localhost:' + port);
+server.addListener('listening', function () {
+	log('Websocket server listening on port ' + port);
 });
 
-// Handle WebSocket Requests
 server.addListener('connection', function (conn) {
 	connections++;
 	server.broadcast(ctrlChar + 'connCount\t' + connections);
-	// log('opened connection: ' + conn.id);
+	log(connections + ' users connected');
   
 	conn.addListener('message', function (message) {
 		if(message[0] == "/") {
@@ -44,8 +44,10 @@ server.addListener('connection', function (conn) {
 					break;
 			}
 		} else {
-			// log('<'+conn.id+'> ' + message);
+			var request = client.request(method='POST', '/');
+			request.end(conn.storage.get("name") + ': ' + message);
 			server.broadcast(timestamp() + '\t' + conn.storage.get("name") + '\t' + message);
+			log(conn.storage.get("name") + ': ' + message);
 		}
 	});
 });
@@ -53,7 +55,7 @@ server.addListener('connection', function (conn) {
 server.addListener('close', function(conn){
 	connections--;
 	server.broadcast(ctrlChar + 'connCount\t' + connections);
-	// log('closed connection: ' + conn.id);
+	log(connections + ' users connected');
 });
 
 server.listen(port);
